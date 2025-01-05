@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Generate a Monkey</title>
+  <style>
+    /* CSS styles for pixel ASCII style */
+    body {
+      background-color: #000;
+      color: #fff;
+      font-family: 'Courier New', Courier, monospace;
+      margin: 20px;
+    }
+    h1 {
+      text-align: center;
+      color: #0ff;
+    }
+    #connect-wallet, button[type="submit"] {
+      background-color: #0ff;
+      color: #000;
+      border: none;
+      padding: 10px 20px;
+      cursor: pointer;
+      font-family: 'Courier New', Courier, monospace;
+    }
+    #connect-wallet:hover, button[type="submit"]:hover {
+      background-color: #0cf;
+    }
+    form {
+      margin-top: 20px;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+      color: #ff0;
+    }
+    input {
+      width: 200px;
+      padding: 5px;
+      font-family: 'Courier New', Courier, monospace;
+      background-color: #111;
+      color: #fff;
+      border: 1px solid #0ff;
+    }
+    #monkey-output {
+      margin-top: 20px;
+      font-size: 1.2em;
+      border: 1px solid #0ff;
+      padding: 10px;
+      white-space: pre-wrap;
+      background-color: #000;
+      color: #0ff;
+    }
+  </style>
+  <!-- Include Phantom Wallet Adapter scripts via CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@solana/wallet-adapter@0.12.0"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@solana/wallet-adapter-phantom@0.12.0"></script>
+</head>
+<body>
+  <h1>Generate a Monkey</h1>
+  <button id="connect-wallet">Connect Phantom Wallet</button>
+  <form id="generate-form">
+    <label for="id-input">Enter ID:</label><br>
+    <input type="text" id="id-input" required><br><br>
+    <button type="submit">Generate Monkey</button>
+  </form>
+  <pre id="monkey-output"></pre>
+
+  <script>
+    // JavaScript code for wallet connection and monkey generation
+    const connectButton = document.getElementById('connect-wallet');
+    const generateForm = document.getElementById('generate-form');
+    const monkeyOutput = document.getElementById('monkey-output');
+
+    // Initialize Phantom Wallet Adapter
+    const phantomWallet = new window.PhantomWalletAdapter();
+
+    connectButton.addEventListener('click', async () => {
+      try {
+        await phantomWallet.connect();
+        alert('Wallet connected!');
+      } catch (error) {
+        console.error('Failed to connect wallet:', error);
+      }
+    });
+
+    // Define possible traits for the ASCII monkey
+    const faces = ['(@)', '(>)', '(<)', '(.)'];
+    const bodies = ['((', ') )', '[ ]', '{ }'];
+    const limbs = ['^^', '==', '--', '~~'];
+
+    // Function to generate ASCII monkey based on ID
+    function generateMonkey(id) {
+      const seed = parseInt(id, 10);
+      const faceIndex = seed % faces.length;
+      const bodyIndex = Math.floor(seed / faces.length) % bodies.length;
+      const limbIndex = Math.floor(seed / (faces.length * bodies.length)) % limbs.length;
+      return [
+        '   _______',
+        '  |       |',
+        `  ${faces[faceIndex]}       `,
+        `  ${bodies[bodyIndex]}       `,
+        `  ${limbs[limbIndex]} ${limbs[limbIndex]}    `,
+        '  |   |   |',
+        '  |___|___|'
+      ].join('\n');
+    }
+
+    // Handle form submission to generate monkey
+    generateForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (!phantomWallet.connected) {
+        alert('Please connect your Phantom Wallet first.');
+        return;
+      }
+      const id = document.getElementById('id-input').value;
+      if (!id) {
+        alert('ID is required.');
+        return;
+      }
+      const monkey = generateMonkey(id);
+      monkeyOutput.textContent = monkey;
+    });
+  </script>
+</body>
+</html>
